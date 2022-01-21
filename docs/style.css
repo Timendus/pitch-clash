@@ -9,9 +9,9 @@ html, body {
 }
 body{
   background: linear-gradient(
-      135deg,
-      #ffcf1b,
-      #ff8b1b
+      180deg,
+      #2b2b39,
+      #202430
   );
   font-family: 'Poppins',sans-serif;
   font-weight: 400;

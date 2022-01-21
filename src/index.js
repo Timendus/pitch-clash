@@ -14,16 +14,22 @@ window.addEventListener('load', () => {
   const socket = io("http://localhost:3000/pitch-clash");
   const players = {};
   const keys = {};
+  let playing = true;
 
   function clockTick() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(level1, 0, 0, canvas.width, canvas.height);
+
     drawPlayers();
+    drawScores();
+
+    checkCollission();
     moveMe();
-    requestAnimationFrame(clockTick);
+
+    if ( playing ) requestAnimationFrame(clockTick);
   }
 
   function drawPlayers() {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(level1, 0, 0, canvas.width, canvas.height);
     for ( const player of Object.keys(players) ) {
       context.beginPath();
       context.strokeStyle = players[player].color;
@@ -37,6 +43,49 @@ window.addEventListener('load', () => {
     }
   }
 
+  function drawScores() {
+    context.font = '20px Arial';
+    context.fillStyle = 'white';
+    context.shadowColor = 'rgba(0,0,0,0)';
+    for ( const player of Object.keys(players) ) {
+      const pos = players[player].positions[players[player].positions.length - 1];
+      context.fillText(players[player].score, pos[0] - 20, pos[1] - 20);
+    }
+  }
+
+  const collissionCanvas = document.createElement('canvas');
+  const collissionContext = collissionCanvas.getContext('2d');
+  collissionCanvas.width = canvas.width;
+  collissionCanvas.height = canvas.height;
+  collissionContext.drawImage(level1, 0, 0, canvas.width, canvas.height);
+  const collissionMap = collissionContext.getImageData(0,0,canvas.width,canvas.height).data;
+
+  function checkCollission() {
+    for ( const player of Object.keys(players) ) {
+      const pos = players[player].positions[players[player].positions.length - 1];
+      if ( pos[1] >= canvas.width ) {
+        console.log("HIT END");
+        playing = false;
+      }
+      const index = pos[0] * 4 + ( pos[1] * 4 * canvas.width);
+      const [r,g,b] = [collissionMap[index], collissionMap[index+1], collissionMap[index+2]];
+      if ( r > 100 && b > 100 && g > 100 ) {
+        playing = false;
+      } else if ( r > 100 ) {
+        players[player].score -= 2;
+      }
+      const collidePlayer = Object.values(players).find(p => {
+        if (p.id == player) return false;
+        const hisPos = players[p.id].positions[players[p.id].positions.length - 1];
+        return Math.abs(hisPos[1] - pos[1]) < 6;
+      });
+      if ( collidePlayer ) {
+        console.log("BOOM");
+        playing = false;
+      }
+    }
+  }
+
   function moveMe() {
     const me = Object.values(players).find(p => p.id == socket.id);
     if ( !me ) return;
@@ -44,6 +93,7 @@ window.addEventListener('load', () => {
     pos[0] += 1;
     if ( keys[38] || keys[40] ) pos[1] += keys[38] ? -2 : 0 + keys[40] ? 2 : 0;
     me.positions.push(pos);
+    me.score += 1;
     socket.volatile.emit('update', me, { volatile: true });
   }
 
@@ -60,7 +110,8 @@ window.addEventListener('load', () => {
   socket.emit('join', {
     player: {
       positions: [[20, 30]],
-      color: '#FF3322'
+      color: '#FF3322',
+      score: 0
     }
   });
 
