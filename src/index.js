@@ -311,8 +311,9 @@ window.addEventListener('load', async () => {
     context.drawImage(title, 0, 0, canvas.width, canvas.height);
     context.font = '40px Arial';
     context.fillStyle = 'white';
+    context.textAlign = "center";
     const numPlayers = Object.keys(players).length;
-    context.fillText(`${numPlayers} player${numPlayers > 1 ? 's' : ''}`, 930, 1150);
+    context.fillText(`${numPlayers} player${numPlayers > 1 ? 's' : ''}`, 1000, 1150);
   }
 
   drawTitle();
