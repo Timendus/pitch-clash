@@ -251,10 +251,10 @@ window.addEventListener('load', async () => {
         const hisPos = players[p.id].positions[players[p.id].positions.length - 1];
         return Math.abs(hisPos[1] - pos[1]) < 6;
       });
-      if ( collidePlayer ) {
-        console.log("BOOM");
-        playing = false;
-      }
+      // if ( collidePlayer ) {
+      //   console.log("BOOM");
+      //   playing = false;
+      // }
     }
   }
 
