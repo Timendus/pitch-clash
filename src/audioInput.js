@@ -120,8 +120,8 @@ export default class AudioInput {
     const cleanPitches = this.pitches.filter((pitch) => pitch !== null);
     function pitchToY(pitch) {
       const height = 1333;
-      const pitchMin = 100;
-      const pitchMax = 400;
+      const pitchMin = 20;
+      const pitchMax = 600;
       const fraction = (pitch - pitchMin) / (pitchMax - pitchMin);
       const yMax = 0;
       const yMin = height;
