@@ -107,7 +107,6 @@ class AudioInput {
 window.addEventListener('load', async () => {
 
   const audioInput = new AudioInput();
-  await audioInput.start();
 
   const canvas = document.querySelector('canvas');
   const context = canvas.getContext('2d');
@@ -260,7 +259,8 @@ window.addEventListener('load', async () => {
   drawTitle();
   interval = setInterval(drawTitle, 100);
 
-  canvas.addEventListener('click', () => {
+  canvas.addEventListener('click', async () => {
+    await audioInput.start();
     socket.emit('message');
   });
 
