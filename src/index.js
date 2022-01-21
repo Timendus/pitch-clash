@@ -116,12 +116,14 @@ window.addEventListener('load', async () => {
   context.lineCap = 'round';
 
   const playerSprite = document.querySelector('#sprites > #player');
+  const title = document.querySelector('#levels > #title');
   const level1 = document.querySelector('#levels > #level1');
 
   const socket = io("http://localhost:3000/pitch-clash");
   const players = {};
   const keys = {};
   let playing = true;
+  let interval;
 
   function clockTick() {
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -170,7 +172,7 @@ window.addEventListener('load', async () => {
   function checkCollission() {
     for ( const player of Object.keys(players) ) {
       const pos = players[player].positions[players[player].positions.length - 1];
-      if ( pos[1] >= canvas.width ) {
+      if ( pos[0] >= canvas.width ) {
         console.log("HIT END");
         playing = false;
       }
@@ -208,6 +210,22 @@ window.addEventListener('load', async () => {
   socket.on('update', player => players[player.id] = player);
   socket.on('leave', player => delete players[player.id]);
   socket.on('disconnect', () => window.location.reload());
+  socket.on('message', () => {
+    // Divide vertical space over the players
+    let y = 0;
+    for ( const player of Object.keys(players) ) {
+      y += canvas.height / (Object.keys(players).length + 1);
+      if ( player == socket.id ) {
+        players[player].positions = [[20, y]];
+        socket.emit('update', players[player]);
+        break;
+      }
+    }
+
+    // Start the game!
+    clearInterval(interval);
+    requestAnimationFrame(clockTick);
+  });
 
   window.addEventListener('keydown', e => keys[e.keyCode] = true);
   window.addEventListener('keyup', e => keys[e.keyCode] = false);
@@ -219,12 +237,26 @@ window.addEventListener('load', async () => {
 
   socket.emit('join', {
     player: {
-      positions: [[20, 30]],
+      positions: [[20, Math.floor(Math.random() * canvas.height)]],
       color: '#FF3322',
       score: 0
     }
   });
 
-  requestAnimationFrame(clockTick);
+  function drawTitle() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(title, 0, 0, canvas.width, canvas.height);
+    context.font = '40px Arial';
+    context.fillStyle = 'white';
+    const numPlayers = Object.keys(players).length;
+    context.fillText(`${numPlayers} player${numPlayers > 1 ? 's' : ''}`, 930, 1150);
+  }
+
+  drawTitle();
+  interval = setInterval(drawTitle, 100);
+
+  canvas.addEventListener('click', () => {
+    socket.emit('message');
+  });
 
 });
