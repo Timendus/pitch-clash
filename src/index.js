@@ -119,11 +119,16 @@ window.addEventListener('load', async () => {
   const title = document.querySelector('#levels > #title');
   const level1 = document.querySelector('#levels > #level1');
 
-  const socket = io("http://localhost:3000/pitch-clash");
+  const socket = io("https://browserjam-event-server.herokuapp.com/pitch-clash");
   const players = {};
   const keys = {};
   let playing = true;
   let interval;
+
+  const playerColours = [
+    '#0FA5FF',
+    '#F4B547'
+  ];
 
   function clockTick() {
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -237,8 +242,8 @@ window.addEventListener('load', async () => {
 
   socket.emit('join', {
     player: {
-      positions: [[20, Math.floor(Math.random() * canvas.height)]],
-      color: '#FF3322',
+      positions: [],
+      color: playerColours[Math.floor(Math.random() * playerColours.length)],
       score: 0
     }
   });
