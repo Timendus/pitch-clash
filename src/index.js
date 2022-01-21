@@ -63,7 +63,7 @@ window.addEventListener('load', () => {
   function checkCollission() {
     for ( const player of Object.keys(players) ) {
       const pos = players[player].positions[players[player].positions.length - 1];
-      if ( pos[1] >= canvas.width ) {
+      if ( pos[0] >= canvas.width ) {
         console.log("HIT END");
         playing = false;
       }
