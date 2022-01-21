@@ -1,6 +1,113 @@
 const io = require('socket.io-client');
 
-window.addEventListener('load', () => {
+function average(arr) {
+  return arr.reduce((sum, item) => sum + item, 0) / arr.length;
+}
+
+const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+
+function lerp(a, b, t) {
+  if (t === 0) {
+    return a;
+  }
+  if (t === 1) {
+    return b;
+  }
+  return t * b + (1 - t) * a;
+}
+
+class AudioInput {
+  constructor() {
+    this.audioCtx = new window.AudioContext();
+    this.analyser = this.audioCtx.createAnalyser();
+
+    this.analyser.fftSize = 2048;
+    const bufferLength = this.analyser.frequencyBinCount;
+    this.uint8TimeDomain = new Uint8Array(bufferLength);
+    this.uint8FrequencyData = new Uint8Array(bufferLength);
+    this.floatTimeDomain = new Float32Array(bufferLength);
+
+    this.pitches = [];
+    this.currentY = 0;
+    this.playerY = 0;
+  }
+
+  async start() {
+    this.stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+    });
+    this.source = this.audioCtx.createMediaStreamSource(this.stream);
+    this.source.connect(this.analyser);
+  }
+
+  async stop() {
+    this.source.disconnect(this.analyser);
+    for (const track of this.stream.getTracks()) {
+      track.stop();
+    }
+  }
+
+  getPitch() {
+    this.analyser.getFloatTimeDomainData(this.floatTimeDomain);
+    return autoCorrelate(this.floatTimeDomain, this.audioCtx.sampleRate);
+  }
+
+  getPlayerY() {
+    const pitch = this.getPitch();
+    this.pitches.push(pitch);
+    while (this.pitches.length > 20) {
+      this.pitches.shift();
+    }
+
+    const cleanPitches = this.pitches.filter((pitch) => pitch !== null);
+    function pitchToY(pitch) {
+      const height = 1333;
+      const pitchMin = 100;
+      const pitchMax = 400;
+      const fraction = (pitch - pitchMin) / (pitchMax - pitchMin);
+      const yMax = 0;
+      const yMin = height;
+      return fraction * (yMax - yMin) + yMin;
+    }
+    if (cleanPitches.length >= 10) {
+      const avgPitch = average(cleanPitches);
+      const pitchNoise = average(
+        cleanPitches.map((pitch) => {
+          return Math.abs(avgPitch - pitch);
+        })
+      );
+      const pitchWeight = clamp(1 / pitchNoise, 0, 1);
+
+      if (isFinite(avgPitch)) {
+        const y = pitchToY(avgPitch);
+        this.currentY = lerp(this.currentY, y, pitchWeight);
+      }
+      this.playerY = lerp(this.playerY, this.currentY, 0.9);
+    }
+
+    return this.playerY;
+  }
+
+  setPlayerY(y) {
+    this.currentY = y;
+    this.playerY = y;
+  }
+
+  getByteFrequencyData() {
+    this.analyser.getByteFrequencyData(this.uint8FrequencyData);
+    return this.uint8FrequencyData;
+  }
+
+  getByteTimeDomainData() {
+    this.analyser.getByteTimeDomainData(this.uint8TimeDomain);
+    return this.uint8TimeDomain;
+  }
+}
+
+window.addEventListener('load', async () => {
+
+  const audioInput = new AudioInput();
+  await audioInput.start();
 
   const canvas = document.querySelector('canvas');
   const context = canvas.getContext('2d');
@@ -91,7 +198,7 @@ window.addEventListener('load', () => {
     if ( !me ) return;
     const pos = me.positions[me.positions.length - 1];
     pos[0] += 1;
-    if ( keys[38] || keys[40] ) pos[1] += keys[38] ? -2 : 0 + keys[40] ? 2 : 0;
+    pos[1] = audioInput.getPlayerY();
     me.positions.push(pos);
     me.score += 1;
     socket.volatile.emit('update', me, { volatile: true });
@@ -106,6 +213,9 @@ window.addEventListener('load', () => {
   window.addEventListener('keyup', e => keys[e.keyCode] = false);
 
   // And start!
+
+  const playerY = 30;
+  audioInput.setPlayerY(playerY);
 
   socket.emit('join', {
     player: {
