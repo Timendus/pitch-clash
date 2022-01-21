@@ -12,7 +12,7 @@ window.addEventListener('load', () => {
   const title = document.querySelector('#levels > #title');
   const level1 = document.querySelector('#levels > #level1');
 
-  const socket = io("http://localhost:3000/pitch-clash");
+  const socket = io("https://browserjam-event-server.herokuapp.com/pitch-clash");
   const players = {};
   const keys = {};
   let playing = true;
