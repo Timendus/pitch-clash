@@ -17,11 +17,13 @@ body{
   font-weight: 400;
   font-size: 15px;
 }
-.note {
-  display: block;
+canvas {
   position: absolute;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background-color: blue;
+  top: 50%;
+  margin-top: -33vw;
+  aspect-ratio: 3 / 2;
+  width: 100vw;
+}
+#sprites {
+  display: none;
 }
