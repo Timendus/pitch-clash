@@ -104,6 +104,18 @@ window.addEventListener('load', () => {
   socket.on('leave', player => delete players[player.id]);
   socket.on('disconnect', () => window.location.reload());
   socket.on('message', () => {
+    // Divide vertical space over the players
+    let y = 0;
+    for ( const player of Object.keys(players) ) {
+      y += canvas.height / (Object.keys(players).length + 1);
+      if ( player == socket.id ) {
+        players[player].positions = [[20, y]];
+        socket.emit('update', players[player]);
+        break;
+      }
+    }
+
+    // Start the game!
     clearInterval(interval);
     requestAnimationFrame(clockTick);
   });
