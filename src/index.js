@@ -111,20 +111,21 @@ window.addEventListener('load', async () => {
   socket.on('update', player => players[player.id] = player);
   socket.on('leave', player => delete players[player.id]);
   socket.on('disconnect', () => window.location.reload());
-  socket.on('message', () => {
-    // Divide vertical space over the players
-    // Resetting the positions array gives some nasty issues... not sure why
-    // So commented out for now
+  socket.on('message', async () => {
+    // Start microphone
+    audioInput.start();
 
-    // let y = 0;
-    // for ( const player of Object.keys(players) ) {
-    //   y += canvas.height / (Object.keys(players).length + 1);
-    //   if ( player == socket.id ) {
-    //     players[player].positions = [[20, y]];
-    //     socket.emit('update', players[player]);
-    //     break;
-    //   }
-    // }
+    // Divide vertical space over the players
+    let y = 0;
+    for ( const player of Object.keys(players) ) {
+      y += canvas.height / (Object.keys(players).length + 1);
+      if ( player == socket.id ) {
+        players[player].positions = [[20, y]];
+        socket.emit('update', players[player]);
+        audioInput.setPlayerY(y);
+        break;
+      }
+    }
 
     // Start the game!
     clearInterval(interval);
@@ -135,9 +136,6 @@ window.addEventListener('load', async () => {
   window.addEventListener('keyup', e => keys[e.keyCode] = false);
 
   // And start!
-
-  const playerY = 30;
-  audioInput.setPlayerY(playerY);
 
   socket.emit('join', {
     player: {
@@ -160,8 +158,7 @@ window.addEventListener('load', async () => {
   drawTitle();
   interval = setInterval(drawTitle, 100);
 
-  canvas.addEventListener('click', async () => {
-    await audioInput.start();
+  canvas.addEventListener('click', () => {
     socket.emit('message');
   });
 
