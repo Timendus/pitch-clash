@@ -275,15 +275,18 @@ window.addEventListener('load', async () => {
   socket.on('disconnect', () => window.location.reload());
   socket.on('message', () => {
     // Divide vertical space over the players
-    let y = 0;
-    for ( const player of Object.keys(players) ) {
-      y += canvas.height / (Object.keys(players).length + 1);
-      if ( player == socket.id ) {
-        players[player].positions = [[20, y]];
-        socket.emit('update', players[player]);
-        break;
-      }
-    }
+    // Resetting the positions array gives some nasty issues... not sure why
+    // So commented out for now
+
+    // let y = 0;
+    // for ( const player of Object.keys(players) ) {
+    //   y += canvas.height / (Object.keys(players).length + 1);
+    //   if ( player == socket.id ) {
+    //     players[player].positions = [[20, y]];
+    //     socket.emit('update', players[player]);
+    //     break;
+    //   }
+    // }
 
     // Start the game!
     clearInterval(interval);
