@@ -1,5 +1,5 @@
 {
-  "name": "Rock Paper Scissors",
+  "name": "pitch-clash",
   "dependencies": {
     "binary-loader": "^0.0.1",
     "midi-parser-js": "^4.0.4",
