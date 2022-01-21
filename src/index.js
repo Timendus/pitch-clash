@@ -77,22 +77,24 @@ window.addEventListener('load', async () => {
         console.log("HIT END");
         playing = false;
       }
-      const index = pos[0] * 4 + ( pos[1] * 4 * canvas.width);
+      const index = Math.min(collissionMap.length - 3, pos[0] * 4 + ( Math.floor(pos[1]) * 4 * canvas.width));
       const [r,g,b] = [collissionMap[index], collissionMap[index+1], collissionMap[index+2]];
       if ( r > 100 && b > 100 && g > 100 ) {
+        console.log("GAME END");
         playing = false;
       } else if ( r > 100 ) {
+        console.log("ASTEROID COLLIDE");
         players[player].score -= 2;
       }
       const collidePlayer = Object.values(players).find(p => {
         if (p.id == player) return false;
         const hisPos = players[p.id].positions[players[p.id].positions.length - 1];
-        return Math.abs(hisPos[1] - pos[1]) < 6;
+        return Math.abs(hisPos[0] - pos[0]) < 6 && Math.abs(hisPos[1] - pos[1]) < 6;
       });
-      // if ( collidePlayer ) {
-      //   console.log("BOOM");
-      //   playing = false;
-      // }
+      if ( collidePlayer ) {
+        console.log("PLAYER COLLIDE");
+        // playing = false;
+      }
     }
   }
 
