@@ -25,9 +25,14 @@ main {
   justify-content: center;
 }
 canvas {
-  aspect-ratio: 3 / 2;
   width: 100vw;
-  max-height: 100vh;
+  height: 66vw;
+}
+@media (min-aspect-ratio: 3/2) {
+  canvas {
+    height: 100vh;
+    width: 150vh;
+  }
 }
 #sprites, #levels {
   display: none;
