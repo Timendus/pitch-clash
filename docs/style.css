@@ -34,6 +34,22 @@ canvas {
     width: 150vh;
   }
 }
+canvas.hidden {
+  display: none;
+}
 #levels {
   display: none;
+}
+button {
+  box-sizing: border-box;
+  height: 4em;
+  padding: 0 2em;
+
+  background-color: #00c2b4;
+  border-radius: 2em;
+  border: 0;
+
+  color: white;
+  font-size: 1.5em;
+  font-family: Arial;
 }

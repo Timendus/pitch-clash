@@ -114,9 +114,6 @@ window.addEventListener('load', async () => {
   socket.on('leave', player => delete players[player.id]);
   socket.on('disconnect', () => window.location.reload());
   socket.on('message', async () => {
-    // Start microphone
-    audioInput.start();
-
     // Divide vertical space over the players
     let y = 0;
     for ( const player of Object.keys(players) ) {
@@ -139,14 +136,6 @@ window.addEventListener('load', async () => {
 
   // And start!
 
-  socket.emit('join', {
-    player: {
-      positions: [[20, Math.floor(Math.random() * canvas.height)]],
-      color: playerColours[Math.floor(Math.random() * playerColours.length)],
-      score: 0
-    }
-  });
-
   function drawTitle() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(title, 0, 0, canvas.width, canvas.height);
@@ -162,6 +151,20 @@ window.addEventListener('load', async () => {
 
   canvas.addEventListener('click', () => {
     socket.emit('message');
+  });
+
+  document.querySelector('#start').addEventListener('click', async e => {
+    await audioInput.start();
+    e.target.remove();
+    canvas.classList.remove('hidden');
+
+    socket.emit('join', {
+      player: {
+        positions: [[20, Math.floor(Math.random() * canvas.height)]],
+        color: playerColours[Math.floor(Math.random() * playerColours.length)],
+        score: 0
+      }
+    });
   });
 
 });
