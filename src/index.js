@@ -77,6 +77,12 @@ function autoCorrelate(buf, sampleRate) {
 
 class AudioInput {
   constructor() {
+    this.pitches = [];
+    this.currentY = 0;
+    this.playerY = 0;
+  }
+
+  async start() {
     this.audioCtx = new window.AudioContext();
     this.analyser = this.audioCtx.createAnalyser();
 
@@ -86,12 +92,6 @@ class AudioInput {
     this.uint8FrequencyData = new Uint8Array(bufferLength);
     this.floatTimeDomain = new Float32Array(bufferLength);
 
-    this.pitches = [];
-    this.currentY = 0;
-    this.playerY = 0;
-  }
-
-  async start() {
     this.stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
     });
