@@ -93,7 +93,7 @@ window.addEventListener('load', async () => {
       });
       if ( collidePlayer ) {
         console.log("PLAYER COLLIDE");
-        // playing = false;
+        playing = false;
       }
     }
   }
