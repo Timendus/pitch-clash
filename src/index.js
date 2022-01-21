@@ -4,8 +4,8 @@ window.addEventListener('load', () => {
 
   const canvas = document.querySelector('canvas');
   const context = canvas.getContext('2d');
-  canvas.width = 1333;
-  canvas.height = 2000;
+  canvas.width = 2000;
+  canvas.height = 1333;
   context.lineCap = 'round';
 
   const playerSprite = document.querySelector('#sprites > #player');
