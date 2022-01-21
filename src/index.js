@@ -241,7 +241,7 @@ window.addEventListener('load', async () => {
 
   socket.emit('join', {
     player: {
-      positions: [],
+      positions: [[20, Math.floor(Math.random() * canvas.height)]],
       color: playerColours[Math.floor(Math.random() * playerColours.length)],
       score: 0
     }
