@@ -33,7 +33,7 @@ window.addEventListener('load', async () => {
     drawPlayers();
     drawScores();
 
-    checkCollission();
+    checkCollision();
     moveMe();
 
     if ( playing ) requestAnimationFrame(clockTick);
@@ -63,22 +63,22 @@ window.addEventListener('load', async () => {
     }
   }
 
-  const collissionCanvas = document.createElement('canvas');
-  const collissionContext = collissionCanvas.getContext('2d');
-  collissionCanvas.width = canvas.width;
-  collissionCanvas.height = canvas.height;
-  collissionContext.drawImage(level1, 0, 0, canvas.width, canvas.height);
-  const collissionMap = collissionContext.getImageData(0,0,canvas.width,canvas.height).data;
+  const collisionCanvas = document.createElement('canvas');
+  const collisionContext = collisionCanvas.getContext('2d');
+  collisionCanvas.width = canvas.width;
+  collisionCanvas.height = canvas.height;
+  collisionContext.drawImage(level1, 0, 0, canvas.width, canvas.height);
+  const collisionMap = collisionContext.getImageData(0,0,canvas.width,canvas.height).data;
 
-  function checkCollission() {
+  function checkCollision() {
     for ( const player of Object.keys(players) ) {
       const pos = players[player].positions[players[player].positions.length - 1];
       if ( pos[0] >= canvas.width ) {
         console.log("HIT END");
         playing = false;
       }
-      const index = Math.min(collissionMap.length - 3, pos[0] * 4 + ( Math.floor(pos[1]) * 4 * canvas.width));
-      const [r,g,b] = [collissionMap[index], collissionMap[index+1], collissionMap[index+2]];
+      const index = Math.min(collisionMap.length - 3, pos[0] * 4 + ( Math.floor(pos[1]) * 4 * canvas.width));
+      const [r,g,b] = [collisionMap[index], collisionMap[index+1], collisionMap[index+2]];
       if ( r > 100 && b > 100 && g > 100 ) {
         console.log("GAME END");
         playing = false;
